@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desnormalização: console da API</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>Desnormalização: console da API</h1>
+  <p class="sub">Teste do back end (Supabase). O artigo completo entra aqui depois.</p>
+  <div class="grid">
+    <button data-rpc="comparar_consultas">Comparar consultas</button>
+    <button data-rpc="verificar_consistencia">Verificar consistência</button>
+    <button data-rpc="demo_custo_atualizacao" data-body='{"p_produto_id":1}'>Custo de atualização</button>
+    <button data-rpc="resumo_mensal">Resumo mensal (MV)</button>
+  </div>
+  <section id="saida" aria-live="polite">Escolha uma ação acima.</section>
+</main>
+<footer>Dados fictícios · PostgreSQL 17 · Opiniões dos autores</footer>
+<script>
+const URL_API = "https://awfdhtcajfxpljypupjr.supabase.co/rest/v1/rpc/";
+const CHAVE = "sb_publishable__eLsN6eG-NZ6y_u2nt-JGg_VD2v3pg_"; // chave pública (somente leitura via RLS)
+const out = document.getElementById("saida");
+
+function tabela(rows){
+  if(!rows.length) return "<p>Sem resultados.</p>";
+  const cols = Object.keys(rows[0]).filter(c => c !== "plano");
+  const cel = v => String(v ?? "").replace(/[&<>]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
+  return "<table><tr>" + cols.map(c => `<th>${cel(c)}</th>`).join("") + "</tr>" +
+    rows.map(r => "<tr>" + cols.map(c => c === "consulta"
+      ? `<td><pre>${cel(r[c])}</pre></td>` : `<td>${cel(r[c])}</td>`).join("") + "</tr>").join("") + "</table>";
+}
+
+document.querySelectorAll("button[data-rpc]").forEach(b => b.addEventListener("click", async () => {
+  out.textContent = "Carregando…";
+  try {
+    const r = await fetch(URL_API + b.dataset.rpc, {
+      method: "POST",
+      headers: {"apikey": CHAVE, "Content-Type": "application/json"},
+      body: b.dataset.body || "{}"
+    });
+    if(!r.ok) throw new Error(r.status + " " + await r.text());
+    out.innerHTML = tabela(await r.json());
+  } catch (e) {
+    out.innerHTML = `<p class="bad">Erro: ${String(e.message).replace(/</g,"&lt;")}</p>`;
+  }
+}));
+</script>
+</body>
+</html>
