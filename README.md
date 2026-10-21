@@ -45,7 +45,7 @@ WIKIPEDIA. Denormalization. Disponível em: https://en.wikipedia.org/wiki/Denorm
 O grupo analisou duas referências técnicas e registrou
 as principais decisões tomadas durante o desenvolvimento.
 
-Consulte o [Quadro de Observação](QUADRO_OBSERVACÃO.md).
+Consulte o [Quadro de Observação](QUADRO_OBSERVACAO.md).
 
 
 ## Licença
